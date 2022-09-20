@@ -2,7 +2,7 @@ pipeline {
 
   environment {
     dockerimagename = "sumon737/nodeapp"
-    dockerImage = ""
+    dockerImage = "docker.build("sumon737/nodeapp")"
   }
 
   agent any
@@ -30,7 +30,7 @@ pipeline {
       steps{
         script {
           docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
+            dockerImage.push("${env.BUILD_NUMBER}")
           }
         }
       }
