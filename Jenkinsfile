@@ -2,7 +2,7 @@ pipeline {
 
   environment {
     dockerimagename = "sumon737/nodeapp"
-    dockerImage = "docker.build("sumon737/nodeapp")"
+    dockerImage = ""
   }
 
   agent any
