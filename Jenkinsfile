@@ -40,7 +40,7 @@ pipeline {
       steps {
         script {
           kubernetesDeploy(configs: "deploymentservice.yml", kubeconfigId: "kubernetes")
-          sh "kubectl -n dev rollout restart deploy nodeapp-deployment"
+          kubernetesDeploy(configs: "scripts.sh", kubeconfigId: "kubernetes")
         }
       }
     }
