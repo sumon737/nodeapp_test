@@ -40,7 +40,7 @@ pipeline {
       steps {
         script {
           kubernetesDeploy(configs: "deploymentservice.yml", kubeconfigId: "kubernetes")
-          kubernetesDeploy(configs: "scripts.sh", kubeconfigId: "kubernetes")
+          //kubernetesDeploy(configs: "scripts.sh", kubeconfigId: "kubernetes")
         }
       }
     }
