@@ -1,50 +1,38 @@
 pipeline {
-
-  environment {
-    dockerimagename = "sumon737/nodeapp"
-    dockerImage = ""
-  }
-
   agent any
-
   stages {
-
-    stage('Checkout Source') {
+    stage('Docker Build') {
       steps {
-        git 'https://github.com/sumon737/nodeapp_test.git'
+        sh "docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} ."
       }
     }
-
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = docker.build dockerimagename
-        }
-      }
-    }
-
-    stage('Pushing Image') {
-      environment {
-               registryCredential = 'dockerlogin'
-           }
-      steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
-          }
-        }
-      }
-    }
-
-    stage('Deploying App to Kubernetes') {
+    stage('Docker Push') {
       steps {
-        script {
-          kubernetesDeploy(configs: "deploymentservice.yml", kubeconfigId: "kubernetes")
-          //kubernetesDeploy(configs: "scripts.sh", kubeconfigId: "kubernetes")
+        withCredentials([usernamePassword(credentialsId: 'dockerlogin', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh "docker push sumon737/nodeapp:${env.BUILD_NUMBER}"
         }
       }
     }
-
+    stage('Docker Remove Image') {
+      steps {
+        sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
+      }
+    }
+    stage('Apply Kubernetes Files') {
+      steps {
+          withKubeConfig([credentialsId: 'kubeconfig']) {
+          sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
+        }
+      }
   }
-
+}
+post {
+    success {
+      slackSend(message: "Pipeline is successfully completed.")
+    }
+    failure {
+      slackSend(message: "Pipeline failed. Please check the logs.")
+    }
+}
 }
