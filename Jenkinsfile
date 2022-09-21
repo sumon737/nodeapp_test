@@ -22,6 +22,9 @@ pipeline {
     stage('Apply Kubernetes Files') {
       steps {
           withKubeConfig([credentialsId: 'kubernetes']) {
+          sh 'ls -a'
+          sh 'kubectl get pods -n dev'
+          sh 'cat deploymentservice.yml'
           sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f -'
         }
       }
