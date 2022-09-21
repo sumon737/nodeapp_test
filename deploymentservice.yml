@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: nodeserver
-        image: sumon737/nodeapp:latest
+        image: sumon737/nodeapp:{{BUILD_NUMBER}}
         ports:
         - containerPort: 3000
         
