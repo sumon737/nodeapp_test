@@ -32,7 +32,7 @@ metadata:
 spec:
   selector:
     app: nodeapp 
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - protocol: TCP
     port: 5000
@@ -50,7 +50,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: nginx.sumon.com
+    - host: nodeapp.sumon.com
       http:
         paths:
           - backend:
