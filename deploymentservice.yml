@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nodeapp-deployment
-  namespace: dev
+  namespace: develop
   labels:
     app: nodeapp
 spec:
@@ -28,7 +28,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nodeapp-service
-  namespace: dev
+  namespace: develop
 spec:
   selector:
     app: nodeapp 
@@ -46,7 +46,7 @@ metadata:
   namespace: dev
   labels:
     app: nodeapp
-  namespace: dev
+  namespace: develop
 spec:
   ingressClassName: nginx
   rules:
