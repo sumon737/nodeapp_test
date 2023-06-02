@@ -8,7 +8,7 @@ pipeline {
     }
     stage('Docker Push') {
       steps {
-        withDockerRegistry([usernamePassword(credentialsId: 'sumon737-dockerhub', passwordVariable: 'sumon737-dockerhubPassword', usernameVariable: 'sumon737-dockerhubUser')]) {
+        withCredentials([usernamePassword(credentialsId: 'sumon737-dockerhub', passwordVariable: 'sumon737-dockerhubPassword', usernameVariable: 'sumon737-dockerhubUser')]) {
           sh "docker login -u ${env.sumon737-dockerhubUser} -p ${env.sumon737-dockerhubPassword}"
           sh "docker push sumon737/nodeapp:${env.BUILD_NUMBER}"
         }
