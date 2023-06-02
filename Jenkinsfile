@@ -1,17 +1,19 @@
-pipeline {
-  agent any
-  stages {
-    stage('Build and Push') {
-      steps {
-        script {
-          // Log in to DockerHub
-          docker.withRegistry('https://registry.hub.docker.com', 'sumon737-dockerhub') {
-            // Build and tag the Docker image
-            def customImage = docker.build('sumon737/nodeapp:${env.BUILD_NUMBER}')
+#!groovy
 
-            // Push the Docker image to DockerHub
-            customImage.push()
-          }
+pipeline {
+	agent none  stages {
+  	stage('Docker Build') {
+    	agent any
+      steps {
+      	sh 'docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} .'
+      }
+    }
+    stage('Docker Push') {
+    	agent any
+      steps {
+      	withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+        	sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh 'docker push sumon737/nodeapp:${env.BUILD_NUMBER}'
         }
       }
     }
