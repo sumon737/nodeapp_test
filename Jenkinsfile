@@ -1,20 +1,16 @@
 pipeline {
-  agent none
-
+  agent any
   stages {
     stage('Docker Build') {
-      agent any
       steps {
-        sh 'docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} .'
+        sh "docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} ."
       }
     }
-
     stage('Docker Push') {
-      agent any
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
           sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-          sh 'docker push sumon737/nodeapp:${env.BUILD_NUMBER}'
+          sh "docker push sumon737/nodeapp:${env.BUILD_NUMBER}"
         }
       }
     }
