@@ -29,7 +29,7 @@ pipeline {
         sh 'cat deploymentserviceingress.yaml'
         echo 'Changing with latest Build Number:'
         sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" '
-        sh 'cat After:'
+        echo 'cat After:'
         sh 'cat deploymentserviceingress.yaml'
         
       }
