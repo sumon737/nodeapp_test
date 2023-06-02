@@ -1,19 +1,22 @@
 pipeline {
   agent any
   stages {
-    stage('Docker Build') {
+    stage('Build and Push') {
       steps {
-        sh "docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} ."
-      }
-    }
-    stage('Docker Push') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'sumon737-dockerhub', passwordVariable: 'Password', usernameVariable: 'Username')]) {
-          sh "docker login -u ${env.Username} -p ${env.Password}"
-          sh "docker push sumon737/nodeapp:${env.BUILD_NUMBER}"
+        script {
+          // Log in to DockerHub
+          docker.withRegistry('https://registry.hub.docker.com', 'sumon737-dockerhub') {
+            // Build and tag the Docker image
+            def customImage = docker.build('sumon737/nodeapp:${env.BUILD_NUMBER}')
+
+            // Push the Docker image to DockerHub
+            customImage.push()
+          }
         }
       }
-    }    
+    }
+  }
+}    
     stage('Docker Remove Image') {
       steps {
         sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
