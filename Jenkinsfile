@@ -21,12 +21,19 @@ pipeline {
         sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
       }
     }
-
+    
+    stage('Checking Deployment Files in Github') {
+      steps {
+        sh 'ls -a'
+        
     stage('Apply Kubernetes Files') {
       steps {
         withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
           sh 'kubectl get nodes'
           sh 'kubectl get ns'
+          sh 'kubectl apply -f deploymentserviceingress.yaml'
+          ss 'kubectl get pods -n develop'
+          echo 'Done , Thanks!'
         }
       }
     }
