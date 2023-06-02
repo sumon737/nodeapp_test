@@ -6,6 +6,7 @@ pipeline {
         sh "docker build -t sumon737/nodeapp:${env.BUILD_NUMBER} ."
       }
     }
+
     stage('Docker Push') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
@@ -23,11 +24,9 @@ pipeline {
 
     stage('Apply Kubernetes Files') {
       steps {
-        withKubeCredentials(kubectlCredentials: [[caCertificate: '', 
-    clusterName: 'kubernetes', contextName: '', credentialsId: 'su-local-k8s', namespace: 'develop', 
-    serverUrl: 'https://haproxy-lb:6443']]){               
-    kubectl get nodes        
-    kubectl get ns 
+        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
+          sh 'kubectl get nodes'
+          sh 'kubectl get ns'
         }
       }
     }
