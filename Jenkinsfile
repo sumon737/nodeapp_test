@@ -25,6 +25,7 @@ pipeline {
       steps {
         withKubeConfig([credentialsId: 'su-local-k8s']) {
           sh 'ls -a'
+          sh 'whoami'
           sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g" | kubectl apply -f -'
         }
       }
