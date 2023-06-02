@@ -23,13 +23,11 @@ pipeline {
 
     stage('Apply Kubernetes Files') {
       steps {
-        withKubeConfig([credentialsId: 'su-local-k8s']) {
-          sh 'ls -a'
-          sh 'whoami'
-          //sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g" | kubectl apply -f -'
-          //sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g"'
-          sh 'kubectl get nodes'
-          sh 'kubectl get ns'
+        withKubeCredentials(kubectlCredentials: [[caCertificate: '', 
+    clusterName: 'kubernetes', contextName: '', credentialsId: 'su-local-k8s', namespace: 'develop', 
+    serverUrl: 'https://haproxy-lb:6443']]){               
+    kubectl get nodes        
+    kubectl get ns 
         }
       }
     }
