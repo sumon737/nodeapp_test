@@ -19,11 +19,11 @@ pipeline {
       }
     }
 
-    stage('Docker Remove Image') {
-      steps {
-        sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
-      }
-    }
+    //stage('Docker Remove Image') {
+      //steps {
+        //sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
+      //}
+    //}
 
     stage('Apply Kubernetes Files') {
       steps {
