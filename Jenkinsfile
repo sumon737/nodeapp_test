@@ -26,7 +26,8 @@ pipeline {
         withKubeConfig([credentialsId: 'su-local-k8s']) {
           sh 'ls -a'
           sh 'whoami'
-          sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g"'
+          //sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g" | kubectl apply -f -'
+          //sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g"'
           sh 'kubectl get nodes'
           sh 'kubectl get ns'
         }
