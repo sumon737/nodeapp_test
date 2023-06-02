@@ -28,7 +28,7 @@ pipeline {
         echo 'cat Before:'
         sh 'cat deploymentserviceingress.yaml'
         echo 'Changing with latest Build Number:'
-        sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f deploymentserviceingress.yaml '
+        sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl replace -f deploymentserviceingress.yaml '
         echo 'cat After:'
         sh 'cat deploymentserviceingress.yaml'
         
