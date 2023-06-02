@@ -15,15 +15,15 @@ pipeline {
       }
     }
 
-    //stage('Docker Remove Image') {
-      //steps {
-        //sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
-      //}
-    //}
+    stage('Docker Remove Image') {
+      steps {
+        sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
+      }
+    }
 
     stage('Apply Kubernetes Files') {
       steps {
-        withKubeConfig([credentialsId: 'kubernetes-id']) {
+        withKubeConfig([credentialsId: 'su-local-k8s']) {
           sh 'ls -a'
           sh 'cat deploymentservice.yml | sed "s/{{BUILD_NUMBER}}/${env.BUILD_NUMBER}/g" | kubectl apply -f -'
         }
