@@ -29,6 +29,7 @@ pipeline {
         sh 'cat deploymentserviceingress.yaml'
         echo 'Changing with latest Build Number:'
         sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl replace -f deploymentserviceingress.yaml '
+        sh 'kubectl rollout restart deploy nodeapp-deployment -n develop'
         echo 'cat After:'
         sh 'cat deploymentserviceingress.yaml'
         
