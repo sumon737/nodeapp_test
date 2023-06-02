@@ -13,20 +13,7 @@ pipeline {
           sh "docker push sumon737/nodeapp:${env.BUILD_NUMBER}"
         }
       }
-    }
-    ---
-          stage('Build image') {
-       dockerImage = docker.build("monishavasu/my-react-app:latest")
-    }
-    
- stage('Push image') {
-        withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
-        dockerImage.push()
-        }
     }    
-}
-    ---  
-    
     stage('Docker Remove Image') {
       steps {
         sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
