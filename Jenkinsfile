@@ -28,7 +28,7 @@ pipeline {
         echo 'cat Before:'
         sh 'cat deploymentserviceingress.yaml'
         echo 'Changing with latest Build Number:'
-        sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - deploymentserviceingress.yaml'
+        sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
         sh 'git status'
         //sh 'kubectl rollout restart deploy nodeapp-deployment -n develop'
         echo 'cat After:'
@@ -42,7 +42,7 @@ pipeline {
         withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
           sh 'kubectl get nodes'
           sh 'kubectl get ns'
-          sh 'kubectl apply -f deploymentserviceingress.yaml'
+          //sh 'kubectl apply -f deploymentserviceingress.yaml'
           sh 'kubectl get pods -n develop'
           echo 'Done, Thanks!'
         }
