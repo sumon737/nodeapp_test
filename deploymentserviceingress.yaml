@@ -49,7 +49,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: nodeapp.sumon.com
+    - host: nodeapp.su.com
       http:
         paths:
           - backend:
