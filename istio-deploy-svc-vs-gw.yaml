@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp-deployment
+  namespace: develop
+  labels:
+    app: nodeapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodeapp
+  template:
+    metadata:
+      labels:
+        app: nodeapp 
+    spec:
+      containers:
+      - name: nodeserver
+        image: sumon737/nodeapp:{{BUILD_NUMBER}}
+        ports:
+        - containerPort: 3000    
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeapp-service
+  namespace: develop
+spec:
+  selector:
+    app: nodeapp 
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+    nodePort: 30082
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nodeapp-virtualservice
+spec:
+  hosts:
+  - nodeapp.su.com
+  gateways:
+  - nodeapp-gateway
+  http:
+  - route:
+    - destination:
+        host: nodeapp-service
+        port:
+          number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: nodeapp-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - nodeapp.su.com
+    port:
+      number: 80
+      name: http
+      protocol: HTTP
