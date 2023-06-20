@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nodeapp-deployment
+  name: nodeapp-istio-deployment
   namespace: develop
   labels:
-    app: nodeapp
+    app: nodeapp-istio
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nodeapp
+      app: nodeapp-istio
   template:
     metadata:
       labels:
-        app: nodeapp 
+        app: nodeapp-istio 
     spec:
       containers:
       - name: nodeserver
@@ -25,11 +25,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodeapp-service
+  name: nodeapp-istio-service
   namespace: develop
 spec:
   selector:
-    app: nodeapp 
+    app: nodeapp-istio 
   type: NodePort
   ports:
   - protocol: TCP
@@ -41,23 +41,23 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: nodeapp-virtualservice
+  name: nodeapp-istio-virtualservice
 spec:
   hosts:
   - nodeapp.su.com
   gateways:
-  - nodeapp-gateway
+  - nodeapp-istio-gateway
   http:
   - route:
     - destination:
-        host: nodeapp-service
+        host: nodeapp-istio-service
         port:
           number: 80
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: nodeapp-gateway
+  name: nodeapp-istio-gateway
 spec:
   selector:
     istio: ingressgateway
