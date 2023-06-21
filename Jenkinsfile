@@ -44,8 +44,8 @@ pipeline {
           sh 'kubectl get nodes'
           sh 'kubectl get ns'
           //sh 'kubectl apply -f deploymentserviceingress.yaml'
-          sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
-          sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '          
+          //sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
+          //sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '          
           sh 'kubectl get pods -n develop'
           echo 'Done, Thanks!'
         }
