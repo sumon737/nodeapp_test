@@ -24,21 +24,18 @@ pipeline {
     
     stage('Checking Deployment Files in Github') {
       steps {
-        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
-
-          sh 'kubectl get nodes'
           sh 'ls -a'
           echo 'cat Before:'
           sh 'cat deploymentserviceingress.yaml'
           echo 'Changing with latest Build Number:'
           sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
-          sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
+          //sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
           sh 'git status'
           //sh 'kubectl rollout restart deploy nodeapp-deployment -n develop'
           echo 'cat After:'
           sh 'cat deploymentserviceingress.yaml'
           sh 'cat istio-deploy-svc-vs-gw.yaml'
-        }
+        
       }
     }
     
