@@ -24,7 +24,7 @@ pipeline {
     
     stage('Checking Deployment Files in Github') {
       steps {
-        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop'])
+        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
         sh 'ls -a'
         echo 'cat Before:'
         sh 'cat deploymentserviceingress.yaml'
@@ -36,7 +36,7 @@ pipeline {
         echo 'cat After:'
         sh 'cat deploymentserviceingress.yaml'
         sh 'cat istio-deploy-svc-vs-gw.yaml'
-        
+        }
       }
     }
     
