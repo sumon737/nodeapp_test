@@ -1,6 +1,3 @@
-Your Groovy pipeline script looks mostly correct, but there are a few adjustments needed to ensure it runs smoothly. Here's the corrected version:
-
-```groovy
 pipeline {
   agent any
 
