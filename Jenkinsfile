@@ -1,12 +1,15 @@
+Your Groovy pipeline script looks mostly correct, but there are a few adjustments needed to ensure it runs smoothly. Here's the corrected version:
+
+```groovy
 pipeline {
   agent any
 
-    environment {
-        ZAP_DOCKER_IMAGE = "ghcr.io/zaproxy/zaproxy:stable"
-        TARGET_URL = "https://www.google.com"
-        REPORT_NAME = "zap_baseline_report.html"
-    }
-  
+  environment {
+    ZAP_DOCKER_IMAGE = "ghcr.io/zaproxy/zaproxy:stable"
+    TARGET_URL = "http://192.168.119.28:5540"
+    REPORT_NAME = "zap_baseline_report.html"
+  }
+
   stages {
     stage('Docker Build') {
       steps {
@@ -28,23 +31,21 @@ pipeline {
         sh "docker rmi sumon737/nodeapp:${env.BUILD_NUMBER}"
       }
     }
-    
+
     stage('Checking Deployment Files in Github') {
       steps {
-          sh 'ls -a'
-          echo 'cat Before:'
-          sh 'cat deploymentserviceingress.yaml'
-          echo 'Changing with latest Build Number:'
-
-          sh 'git status'
-          //sh 'kubectl rollout restart deploy nodeapp-deployment -n develop'
-          echo 'cat After:'
-          sh 'cat deploymentserviceingress.yaml'
-          sh 'cat istio-deploy-svc-vs-gw.yaml'
-        
+        sh 'ls -a'
+        echo 'cat Before:'
+        sh 'cat deploymentserviceingress.yaml'
+        echo 'Changing with latest Build Number:'
+        sh 'git status'
+        //sh 'kubectl rollout restart deploy nodeapp-deployment -n develop'
+        echo 'cat After:'
+        sh 'cat deploymentserviceingress.yaml'
+        sh 'cat istio-deploy-svc-vs-gw.yaml'
       }
     }
-    
+
     stage('Apply Kubernetes Files') {
       steps {
         withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://192.168.122.90:6443', namespace: 'develop']) {
@@ -52,48 +53,44 @@ pipeline {
           sh 'kubectl get ns'
           //sh 'kubectl apply -f deploymentserviceingress.yaml'
           //sh 'cat deploymentserviceingress.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
-          sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '          
+          sh 'cat istio-deploy-svc-vs-gw.yaml | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g" | kubectl apply -f - '
           sh 'kubectl get pods -n develop'
           echo 'Done, Thanks!'
         }
       }
+    }
 
-      
-        stage('ZAP Baseline Scan') {
-            steps {
-                script {
-                    sh '''
-                    docker run --rm \
-                      -v $PWD:/zap/wrk \
-                      --network=host \
-                      $ZAP_DOCKER_IMAGE \
-                      zap-baseline.py -t $TARGET_URL -r $REPORT_NAME -d
-                    '''
-                }
-            }
+    stage('ZAP Baseline Scan') {
+      steps {
+        script {
+          sh '''
+          docker run --rm \
+            -v $PWD:/zap/wrk \
+            --network=host \
+            $ZAP_DOCKER_IMAGE \
+            zap-baseline.py -t $TARGET_URL -r $REPORT_NAME -d
+          '''
         }
+      }
+    }
 
-        stage('Archive ZAP Report') {
-            steps {
-                archiveArtifacts artifacts: 'zap_baseline_report.html', fingerprint: true
-            }
-        }
+    stage('Archive ZAP Report') {
+      steps {
+        archiveArtifacts artifacts: 'zap_baseline_report.html', fingerprint: true
+      }
+    }
 
-        stage('Publish ZAP Report') {
-            steps {
-                publishHTML (target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: ".",
-                    reportFiles: "zap_baseline_report.html",
-                    reportName: "OWASP ZAP Baseline Security Report"
-                ])
-            }
-        }
-      
-      
-      
+    stage('Publish ZAP Report') {
+      steps {
+        publishHTML (target: [
+          allowMissing: false,
+          alwaysLinkToLastBuild: true,
+          keepAll: true,
+          reportDir: ".",
+          reportFiles: "zap_baseline_report.html",
+          reportName: "OWASP ZAP Baseline Security Report"
+        ])
+      }
     }
   }
 }
