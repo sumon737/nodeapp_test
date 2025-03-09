@@ -1,5 +1,12 @@
 pipeline {
   agent any
+
+    environment {
+        ZAP_DOCKER_IMAGE = "ghcr.io/zaproxy/zaproxy:stable"
+        TARGET_URL = "https://www.google.com"
+        REPORT_NAME = "zap_baseline_report.html"
+    }
+  
   stages {
     stage('Docker Build') {
       steps {
@@ -40,7 +47,7 @@ pipeline {
     
     stage('Apply Kubernetes Files') {
       steps {
-        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://haproxy-lb:6443', namespace: 'develop']) {
+        withKubeConfig([credentialsId: 'su-local-k8s', serverUrl: 'https://192.168.122.90:6443', namespace: 'develop']) {
           sh 'kubectl get nodes'
           sh 'kubectl get ns'
           //sh 'kubectl apply -f deploymentserviceingress.yaml'
@@ -50,6 +57,43 @@ pipeline {
           echo 'Done, Thanks!'
         }
       }
+
+      
+        stage('ZAP Baseline Scan') {
+            steps {
+                script {
+                    sh '''
+                    docker run --rm \
+                      -v $PWD:/zap/wrk \
+                      --network=host \
+                      $ZAP_DOCKER_IMAGE \
+                      zap-baseline.py -t $TARGET_URL -r $REPORT_NAME -d
+                    '''
+                }
+            }
+        }
+
+        stage('Archive ZAP Report') {
+            steps {
+                archiveArtifacts artifacts: 'zap_baseline_report.html', fingerprint: true
+            }
+        }
+
+        stage('Publish ZAP Report') {
+            steps {
+                publishHTML (target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: ".",
+                    reportFiles: "zap_baseline_report.html",
+                    reportName: "OWASP ZAP Baseline Security Report"
+                ])
+            }
+        }
+      
+      
+      
     }
   }
 }
