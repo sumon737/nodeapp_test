@@ -2,9 +2,10 @@ pipeline {
   agent any
 
   environment {
-    ZAP_DOCKER_IMAGE = "ghcr.io/zaproxy/zaproxy:stable"
+    ZAP_API_URL = "http://192.168.119.28:8080"
+    API_KEY = "myapikey"
     TARGET_URL = "http://192.168.119.28:5540"
-    REPORT_NAME = "zap_baseline_report.html"
+    REPORT_NAME = "zap_report.html"    
   }
 
   stages {
@@ -57,37 +58,42 @@ pipeline {
       }
     }
 
-    stage('ZAP Baseline Scan') {
-      steps {
-        script {
-          sh '''
-          docker run --rm \
-            -v $PWD:/zap/wrk \
-            --network=host \
-            $ZAP_DOCKER_IMAGE \
-            zap-baseline.py -t $TARGET_URL -r $REPORT_NAME -d
-          '''
+    stage('Trigger ZAP Scan') {
+            steps {
+                script {
+                    sh '''
+                    curl -X GET "$ZAP_API_URL/JSON/spider/action/scan/?apikey=$API_KEY&url=$TARGET_URL&maxChildren=10"
+                    '''
+                }
+            }
         }
-      }
-    }
 
-    stage('Archive ZAP Report') {
-      steps {
-        archiveArtifacts artifacts: 'zap_baseline_report.html', fingerprint: true
-      }
-    }
+    stage('Wait for Scan Completion') {
+            steps {
+                script {
+                    def status = ""
+                    while (status != "100") {
+                        sleep 10
+                        status = sh(script: "curl -s $ZAP_API_URL/JSON/spider/view/status/?apikey=$API_KEY | jq -r '.status'", returnStdout: true).trim()
+                        echo "Scan progress: $status%"
+                    }
+                }
+            }
+        }
 
-    stage('Publish ZAP Report') {
-      steps {
-        publishHTML (target: [
-          allowMissing: false,
-          alwaysLinkToLastBuild: true,
-          keepAll: true,
-          reportDir: ".",
-          reportFiles: "zap_baseline_report.html",
-          reportName: "OWASP ZAP Baseline Security Report"
-        ])
-      }
-    }
+    stage('Generate ZAP Report') {
+            steps {
+                script {
+                    sh '''
+                    curl -X GET "$ZAP_API_URL/OTHER/core/other/htmlreport/?apikey=$API_KEY" -o $REPORT_NAME
+                    '''
+                }
+            }
+        }
+
+
+
+
+    
   }
 }
